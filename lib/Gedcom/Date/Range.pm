@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -70,13 +70,26 @@ sub earliest {
     }
 }
 
+my %text = (
+    en => ['after %0', 'before %1', 'between %0 and %1'],
+    nl => ['na %0', 'voor %1', 'tussen %0 en %1'],
+);
+
+sub text_format {
+    my ($self, $lang) = @_;
+
+    my $type = defined($self->{bef}) ?
+                   (defined($self->{aft}) ? 2 : 1 ) : 0;
+    return ($text{$lang}[$type], $self->{aft}, $self->{bef});
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-Gedcom::Date::Range - Perl class for interpreting simple Gedcom dates
+Gedcom::Date::Range - Perl class for Gedcom date ranges
 
 =head1 SYNOPSIS
 

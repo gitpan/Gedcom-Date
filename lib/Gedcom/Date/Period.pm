@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -48,13 +48,27 @@ sub gedcom {
     $self->{gedcom};
 }
 
+my %text = (
+    en => ['from %0', 'to %1', 'from %0 to %1'],
+    nl => ['vanaf %0', 'tot %1', 'van %0 tot %1'],
+);
+
+sub text_format {
+    my ($self, $lang) = @_;
+    $lang ||= 'en';
+
+    my $type = defined($self->{to}) ?
+                   (defined($self->{from}) ? 2 : 1 ) : 0;
+    return ($text{$lang}[$type], $self->{from}, $self->{to});
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-Gedcom::Date::Period - Perl class for interpreting simple Gedcom dates
+Gedcom::Date::Period - Perl class for Gedcom date periods
 
 =head1 SYNOPSIS
 

@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -41,13 +41,19 @@ sub latest {
     return DateTime::Infinite::Future->new;
 }
 
+sub as_text {
+    my ($self, $lang) = @_;
+
+    return "($self->{phrase})";
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-Gedcom::Date::Phrase - Perl class for interpreting Gedcom dates
+Gedcom::Date::Phrase - Perl class for Gedcom date phrases
 
 =head1 SYNOPSIS
 

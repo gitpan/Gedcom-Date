@@ -4,11 +4,11 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
-use DateTime;
+use DateTime 0.15;
 use Carp;
 
 my %months = (
@@ -62,6 +62,7 @@ sub gedcom {
     my $self = shift;
 
     if (!defined $self->{gedcom}) {
+        $self->{datetime}->set(locale => 'en');
         my $str = uc $self->{datetime}->strftime('%d %b %Y');
         $str =~ s/\b0+(\d)/$1/g;
         $self->{gedcom} = $str;
@@ -87,6 +88,26 @@ sub earliest {
     my ($self) = @_;
 
     return $self->{datetime};
+}
+
+my %text = (
+    en => 'on %0',
+    nl => 'op %0',
+);
+
+sub text_format {
+    my ($self, $lang) = @_;
+
+    return ($text{$lang}, $self);
+}
+
+sub _date_as_text {
+    my ($self, $locale) = @_;
+
+    my $dt = $self->{datetime};
+    $dt->set(locale => $locale);
+    $dt->strftime($dt->locale->long_date_format);
+
 }
 
 1;

@@ -4,4 +4,4 @@ TODO list for Perl module Gedcom::Date
 
 - Implement other calendars (Julian, Hebrew, French).
 
-
+- "Sorting date" method, to sort all kinds of date formats with.

@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -50,13 +50,24 @@ sub earliest {
     return $self->{date}->earliest;
 }
 
+my %text = (
+    en => 'on %0',
+    nl => 'op %0',
+);
+
+sub text_format {
+    my ($self, $lang) = @_;
+
+    return ($text{$lang}, $self->{date});
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-Gedcom::Date::Interpreted - Perl class for interpreting simple Gedcom dates
+Gedcom::Date::Interpreted - Perl class for interpreted Gedcom dates
 
 =head1 SYNOPSIS
 

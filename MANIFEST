@@ -15,4 +15,5 @@ t/001_load.t
 t/002_parse.t
 t/003_convert.t
 t/100_compare.t
+t/101_output.t
 Makefile.PL

@@ -1,11 +1,11 @@
 package Gedcom::Date;
 
 use strict;
-use Carp;
+use DateTime::Locale;
 
 use vars qw($VERSION);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 use Gedcom::Date::Simple;
 use Gedcom::Date::Period;
@@ -19,17 +19,30 @@ use overload ( fallback => 1,
                '<'      => '_earlier_than',
              );
 
+{
+    my $DefaultLocale;
+    sub DefaultLocale {
+        my $class = shift;
+
+        if (my $locale = shift) {
+            $DefaultLocale = DateTime::Locale->load($locale);
+        }
+        return $DefaultLocale;
+    }
+}
+__PACKAGE__->DefaultLocale('en_GB');
+
 sub parse {
     my $class = shift;
 
     my ($str) = @_;
 
     return
-        Gedcom::Date::Period->parse($str) ||
-        Gedcom::Date::Range->parse($str) ||
+        Gedcom::Date::Period->parse($str)       ||
+        Gedcom::Date::Range->parse($str)        ||
         Gedcom::Date::Approximated->parse($str) ||
-        Gedcom::Date::Interpreted->parse($str) ||
-        Gedcom::Date::Simple->parse($str) ||
+        Gedcom::Date::Interpreted->parse($str)  ||
+        Gedcom::Date::Simple->parse($str)       ||
         Gedcom::Date::Phrase->parse($str);
 }
 
@@ -57,6 +70,21 @@ sub _earlier_than {
     return;
 }
 
+sub as_text {
+    my ($self, $locale) = @_;
+
+    $locale ||= $self->DefaultLocale();
+    $locale = DateTime::Locale->load($locale) unless ref $locale;
+    my $lang = $locale->language_id;
+
+    my ($str, @dates) = $self->text_format($lang);
+
+    $str =~ s/%(\d+)/
+                $dates[$1]->_date_as_text($locale);
+             /ge;
+    return $str;
+}
+
 1;
 
 __END__
@@ -69,31 +97,92 @@ Gedcom::Date - Perl class for interpreting dates in Gedcom files
 
   use Gedcom::Date;
 
-  my $date = Gedcom::Date->parse( '10 JUL 2003' );
+  my $date = Gedcom::Date->parse( 'ABT 10 JUL 2003' );
+
+  my $dt = DateTime->now;
+  my $date2 = Gedcom::Date->from_datetime( $dt );
+
+  $date->gedcom;        # 'ABT 10 JUL 2003'
+  $date->as_text;       # 'about 10 July 2003'
+  $date->as_text('nl'); # 'rond 10 juli 2003'   (nl = Dutch language)
 
 =head1 DESCRIPTION
 
-Parse dates from Gedcom files.
+The Gedcom standard for genealogical data files defines a number of date
+formats. This module can parse most of these formats.
+
+This package contains a number of modules, each implementing a Gedcom
+date format. They are:
+
+  Gedcom::Date::Simple
+    e.g. "4 JUN 1729", "JUL 2003", "1974"
+
+  Gedcom::Date::Approximated
+    e.g. "ABT 15 JUN 1672", "CAL 1922", "EST 1700"
+
+  Gedcom::Date::Interpreted
+    e.g. "INT 12 APR 1657 (Easter Monday)"
+
+  Gedcom::Date::Period
+    e.g. "FROM 1522 TO 1534", "FROM 30 APR 1980", "TO 1910"
+
+  Gedcom::Date::Range
+    e.g. "BET 1600 AND 1620", "AFTER 1948", "BEF 2 AUG 2003"
+
+  Gedcom::Date::Phrase
+    e.g. "(Once upon a time)"
 
 =head1 METHODS
+
+=head2 Class methods
 
 =over 4
 
 =item * parse( $date )
 
-Create a Gedcom::Date object from a string.
+Creates a Gedcom::Date object from a string. The string should be a
+valid date value according to the Gedcom standard v5.5.
+
+=item * from_datetime( $datetime_object )
+
+Creates a Gedcom::Date object from a DateTime object. The return value
+is a Gedcom::Date::Simple object.
+
+=item * DefaultLocale( $locale )
+
+If called with one argument, sets the default locale used in output
+routines. If called without arguments, returns the current default
+locale.
+
+=back
+
+=head2 Instance methods
+
+=over 4
 
 =item * earliest
 
-Return the earliest possible date; e.g. for the date "BET 10 JUL 2003
+Returns the earliest possible date; e.g. for the date "BET 10 JUL 2003
 AND 20 JUL 2003" it returns July 10, 2003. The value returned is a
 DateTime object.
 
 =item * latest
 
-Return the latest possible date; e.g. for the date "BET 10 JUL 2003
+Returns the latest possible date; e.g. for the date "BET 10 JUL 2003
 AND 20 JUL 2003" it returns July 20, 2003. The value returned is a
 DateTime object.
+
+=item * gedcom
+
+Returns the date in Gedcom format.
+
+=item * as_text( $locale )
+
+Returns the date in a format that can be included in a narrative text.
+You can set the language of the text by passing an optional locale
+argument. This should be a DateTime::Locale object, or a valid locale
+identifier. The default locale is 'en_GB' by default, but can be set
+with the DefaultLocale method.
 
 =back
 
@@ -110,7 +199,6 @@ it and/or modify it under the same terms as Perl itself.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
-
 
 =head1 SEE ALSO
 
