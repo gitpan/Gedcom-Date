@@ -4,11 +4,10 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.02;
+$VERSION = 0.03;
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
-use Carp;
 
 sub parse {
     my $class = shift;

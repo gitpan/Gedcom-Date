@@ -6,18 +6,20 @@ BEGIN{
     $^W = 1;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 28;
 use Gedcom::Date;
 
 foreach my $str (<DATA>) {
     chomp $str;
     $d = Gedcom::Date->parse($str);
     isa_ok( $d, 'Gedcom::Date', $str );
-    is($d->gedcom, $str, $str);
+    is($d->gedcom, $str, "parsed $str");
 }
 
 __DATA__
 10 JUL 2003
+JUL 2003
+2003
 ABT 10 JUL 2003
 CAL 10 JUL 2003
 EST 10 JUL 2003

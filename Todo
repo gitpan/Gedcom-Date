@@ -1,7 +1,7 @@
 TODO list for Perl module Gedcom::Date
 
-- Better treatment of partial dates ("2003", "JUL 2003");
-
 - Implement other calendars (Julian, Hebrew, French).
 
 - "Sorting date" method, to sort all kinds of date formats with.
+
+- More languages in as_text()

@@ -5,7 +5,7 @@ use DateTime::Locale;
 
 use vars qw($VERSION);
 
-$VERSION = 0.02;
+$VERSION = 0.03;
 
 use Gedcom::Date::Simple;
 use Gedcom::Date::Period;
@@ -82,6 +82,10 @@ sub as_text {
     $str =~ s/%(\d+)/
                 $dates[$1]->_date_as_text($locale);
              /ge;
+
+    # Remove those ugly leading zeroes
+    $str =~ s/\b0+\B//g;
+
     return $str;
 }
 

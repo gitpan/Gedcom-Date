@@ -1,5 +1,8 @@
 Revision history for Perl module Gedcom::Date
 
+0.03  3 AUG 2003
+    - incomplete dates ("AUG 2003", "2003") are now handled correctly
+
 0.02  2 AUG 2003
     - added a localizable output routine as_text()
 

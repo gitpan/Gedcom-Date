@@ -6,7 +6,7 @@ BEGIN{
     $^W = 1;
 }
 
-use Test::More tests => 36;
+use Test::More tests => 42;
 use Gedcom::Date;
 
 chomp(my $langs = <DATA>);
@@ -41,6 +41,14 @@ __DATA__
     on 10 July 2003
     on July 10, 2003
     op 10 juli 2003
+JUL 2003
+    in July 2003
+    in July 2003
+    in juli 2003
+2003
+    in 2003
+    in 2003
+    in 2003
 ABT 10 JUL 2003
     about 10 July 2003
     about July 10, 2003
