@@ -4,10 +4,39 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.03;
+$VERSION = '0.04';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
+use Params::Validate qw/validate OBJECT SCALAR/;
+
+sub new {
+    my $class = shift;
+    my %p = validate( @_,
+                      { date => {type => OBJECT,
+                                 isa  => 'Gedcom::Date::Simple',
+                                },
+                        type => {type => SCALAR,
+                                 regex => qr/(?ix)(?:   ab(?:ou)?t      |
+                                                        cal(?:culated)? |
+                                                        est(?:imated)? )/,
+                                 default => 'ABT',
+                                },
+                      } );
+
+    my $type = uc $p{type};
+    if ($type eq 'ABOUT') {
+        $type = 'ABT';
+    } elsif (length $type > 3) {
+        $type = substr $type, 0, 3;
+    }
+
+    my $self = {
+                    date => $p{date}->clone,
+                    abt => $type,
+    };
+    return bless $self, $class;
+}
 
 sub parse {
     my $class = shift;
@@ -46,6 +75,12 @@ sub earliest {
     my ($self) = @_;
 
     return $self->{date}->earliest;
+}
+
+sub sort_date {
+    my ($self) = @_;
+
+    return $self->{date}->sort_date;
 }
 
 my %text = (

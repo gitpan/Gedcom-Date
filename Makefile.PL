@@ -7,5 +7,6 @@ WriteMakefile(
     PREREQ_PM    => {
                      'Test::More' => 0,
                      'DateTime' => 0.15,
+                     'Params::Validate' => 0,
                     },
 );

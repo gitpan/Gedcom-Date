@@ -5,7 +5,7 @@ use DateTime::Locale;
 
 use vars qw($VERSION);
 
-$VERSION = 0.03;
+$VERSION = '0.04';
 
 use Gedcom::Date::Simple;
 use Gedcom::Date::Period;
@@ -52,6 +52,21 @@ sub from_datetime {
     return Gedcom::Date::Simple->from_datetime($dt);
 }
 
+sub clone {
+    my ($self) = @_;
+
+    my %clone;
+    for (keys %$self) {
+        if (ref($self->{$_})) {
+            $clone{$_} = $self->{$_}->clone;
+        } else {
+            $clone{$_} = $self->{$_};
+        }
+    }
+
+    return bless \%clone, ref $self;
+}
+
 sub _later_than {
     my ($self, $other, $switched) = @_;
     _earlier_than($other, $self) if $switched;
@@ -89,6 +104,15 @@ sub as_text {
     return $str;
 }
 
+sub add {
+    my $self = shift;
+
+    for (qw/date from to bef aft/) {
+        $self->{$_}->add(@_, secret => 1) if $self->{$_};
+    }
+    return $self;
+}
+
 1;
 
 __END__
@@ -106,9 +130,16 @@ Gedcom::Date - Perl class for interpreting dates in Gedcom files
   my $dt = DateTime->now;
   my $date2 = Gedcom::Date->from_datetime( $dt );
 
+  # output:
   $date->gedcom;        # 'ABT 10 JUL 2003'
   $date->as_text;       # 'about 10 July 2003'
   $date->as_text('nl'); # 'rond 10 juli 2003'   (nl = Dutch language)
+  $date->sort_date;     # '2003-07-10'
+
+  $date->add( years => 2, months => 5 );
+                        # ABT DEC 2005
+
+  my $date3 = $date->clone;
 
 =head1 DESCRIPTION
 
@@ -164,6 +195,30 @@ locale.
 
 =over 4
 
+=item * clone( $object )
+
+Returns a deep copy of the Gedcom::Date object.
+
+=item * add( years => ..., months => ..., days => ..., secret => 1 )
+
+Adds a certain amount of time to the date. All arguments are optional.
+If you do not include the smaller time units in your call, the end
+result will not contain these smaller units. For example, if $date is
+"10 AUG 2003", then:
+
+    $date->add( years => 18, months => 0, days => 0 );
+
+results in "CAL 10 AUG 2021", while
+
+    $date->add( years => 18 );
+
+results in "CAL 2021".
+
+If the object is a simple date, it will become a calculated date (see
+Gedcom::Date::Approximated) after this addition, as shown in the
+examples above. If you don't want to advertise that the date is the
+result of a calculation, set the C<secret> parameter to 1.
+
 =item * earliest
 
 Returns the earliest possible date; e.g. for the date "BET 10 JUL 2003
@@ -175,6 +230,17 @@ DateTime object.
 Returns the latest possible date; e.g. for the date "BET 10 JUL 2003
 AND 20 JUL 2003" it returns July 20, 2003. The value returned is a
 DateTime object.
+
+=item * sort_date
+
+Returns a sortable string, suitable for example for indices. To sort the
+individuals in a Gedcom file on birth date:
+
+    my @sorted = map  { $_->[1] }
+                 sort { $a->[0] cmp $b->[0] }
+                 map  { [ Gedcom::Date->parse($_->birth->date)->sort_date,
+                         $_ ] }
+                 $gedcom_file->individuals;
 
 =item * gedcom
 

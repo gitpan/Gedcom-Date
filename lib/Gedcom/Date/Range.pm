@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.03;
+$VERSION = '0.04';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -66,6 +66,16 @@ sub earliest {
         return $self->{aft}->earliest;
     } else {
         return DateTime::Infinite::Past->new;
+    }
+}
+
+sub sort_date {
+    my ($self) = @_;
+
+    if (defined $self->{aft}) {
+        return $self->{aft}->sort_date;
+    } else {
+        return $self->{bef}->sort_date;
     }
 }
 

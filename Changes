@@ -1,5 +1,16 @@
 Revision history for Perl module Gedcom::Date
 
+0.04  31 AUG 2003
+    - BUG FIX: latest() and earliest() now return the correct values
+      for 'MONTH YEAR' dates
+
+    - new method add() does date math
+
+    - new method clone() makes a deep copy of the object
+
+    - new method sort_date() returns a string that is suited for
+      sorting, e.g. in indices
+
 0.03  3 AUG 2003
     - incomplete dates ("AUG 2003", "2003") are now handled correctly
 

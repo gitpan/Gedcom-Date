@@ -4,21 +4,25 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.03;
+$VERSION = '0.04';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
 use DateTime 0.15;
 
 my %months = (
-    GREGORIAN => [qw/JAN FEB MAR APR MAI JUN JUL AUG SEP OCT NOV DEC/],
+    JULIAN     => [qw/JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC/],
+    GREGORIAN  => [qw/JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC/],
+    'FRENCH R' => [qw/VEND BRUM FRIM NIVO PLUV VENT
+                      GERM FLOR PRAI MESS THER FRUC COMP/],
+    HEBREW     => [qw/TSH CSH KSL TVT SHV ADR ADS NSN IYR SVN TMZ AAV ELL/],
 );
 
 sub parse_datetime {
     my ($class, $str) = @_;
 
     my ($cal, $date) =
-        $str =~ /^(?:\@#(\w+)\@\s+)?(.+)$/
+        $str =~ /^(?:\@#(.+)\@\s+)?(.+)$/
         or return;  # Not a simple date
 
     $cal ||= 'GREGORIAN';
@@ -30,7 +34,7 @@ sub parse_datetime {
 
     my %known = ( d => defined $d, m => defined $month, y => 1 );
     $d ||= 1;   # Handling of incomplete dates is not correct yet
-    $month ||= $months{$cal}[0];
+    $month ||= $months{$cal}[6];
 
     my $m;
     for (0..$#{$months{$cal}}) {
@@ -38,7 +42,7 @@ sub parse_datetime {
     }
     defined($m) or return;
 
-    my $dt = DateTime->new( year => $y, month => $m, day => $d )
+    my $dt = eval {DateTime->new( year => $y, month => $m, day => $d||15 )}
         or return;
 
     return $dt, \%known;
@@ -57,6 +61,17 @@ sub parse {
     }, $class;
 
     return $self;
+}
+
+sub clone {
+    my $self = shift;
+
+    my $clone = bless {
+        datetime => $self->{datetime}->clone,
+        known => { %{$self->{known}} },
+    }, ref $self;
+
+    return $clone;
 }
 
 sub gedcom {
@@ -87,17 +102,26 @@ sub from_datetime {
            }, $class;
 }
 
+sub to_approximated {
+    my ($self, $type) = @_;
+
+    $type ||= 'abt';
+    Gedcom::Date::Approximated->new( date => $self,
+                                     type => $type,
+                                   );
+}
+
 sub latest {
     my ($self) = @_;
 
     my $dt = $self->{datetime};
-    if (!$self->{known}{d}) {
-        $dt->truncate(to => 'month')
-           ->add(months => 1)
-           ->subtract(days => 1);
-    } elsif (!$self->{known}{m}) {
+    if (!$self->{known}{m}) {
         $dt->truncate(to => 'year')
            ->add(years => 1)
+           ->subtract(days => 1);
+    } elsif (!$self->{known}{d}) {
+        $dt->truncate(to => 'month')
+           ->add(months => 1)
            ->subtract(days => 1);
     }
 
@@ -108,13 +132,26 @@ sub earliest {
     my ($self) = @_;
 
     my $dt = $self->{datetime};
-    if (!$self->{known}{d}) {
-        $dt->truncate(to => 'month');
-    } elsif (!$self->{known}{m}) {
+    if (!$self->{known}{m}) {
         $dt->truncate(to => 'year');
+    } elsif (!$self->{known}{d}) {
+        $dt->truncate(to => 'month');
     }
 
     return $dt;
+}
+
+sub sort_date {
+    my ($self) = @_;
+
+    my $dt = $self->{datetime};
+    if (!$self->{known}{m}) {
+        return $dt->strftime('%Y-??-??');
+    } elsif (!$self->{known}{d}) {
+        return $dt->strftime('%Y-%m-??');
+    }
+
+    return $dt->strftime('%Y-%m-%d');
 }
 
 my %text = (
@@ -147,6 +184,28 @@ sub _date_as_text {
     } else {
         return $dt->year;
     }
+}
+
+sub add {
+    my ($self, %p) = @_;
+    my $secret = delete $p{secret};
+
+    $self->{datetime}->add(%p);
+
+    $p{months} = 0 if exists $p{days};
+    $p{years}  = 0 if exists $p{months};
+
+    $self->{known}{d} &&= exists $p{days};
+    $self->{known}{m} &&= exists $p{months};
+    $self->{known}{y} &&= exists $p{years};
+
+    unless ($secret) {
+        my $d = $self->to_approximated('calculated');
+        %{ $self } = %{ $d };
+        bless $self, ref $d;
+    }
+
+    return $self;
 }
 
 1;

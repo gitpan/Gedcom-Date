@@ -16,4 +16,7 @@ t/002_parse.t
 t/003_convert.t
 t/100_compare.t
 t/101_output.t
+t/200_add.t
+t/201_clone.t
 Makefile.PL
+META.yml

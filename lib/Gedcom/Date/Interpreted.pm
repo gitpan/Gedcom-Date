@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = 0.03;
+$VERSION = '0.04';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -47,6 +47,12 @@ sub earliest {
     my ($self) = @_;
 
     return $self->{date}->earliest;
+}
+
+sub sort_date {
+    my ($self) = @_;
+
+    return $self->{date}->sort_date;
 }
 
 my %text = (
