@@ -1,0 +1,84 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+use Gedcom;
+use Gedcom::Date;
+
+my $file = shift;
+
+my $ged = Gedcom->new( gedcom_file => $file,
+                       read_only   => 1,
+                     ) or die "Usage: check_ged FILE\n";
+
+my %limit = (
+    old_father => [ years => 60 ],
+    young_father => [ years => 16 ],
+    father_dead => [ days => 300 ],
+    old_mother => [ years => 45 ],
+    young_mother => [ years => 16 ],
+);
+
+for (keys %limit) {
+    $limit{$_} = DateTime::Duration->new( @{$limit{$_}} );
+}
+
+for my $indi ($ged->individuals) {
+    my $birth_date_str = $indi->get_value('birth date') or next;
+    my $birth_date = Gedcom::Date->parse($birth_date_str) or next;
+
+    for my $father ($indi->father) {
+        my ($death_date_str, $death_date);
+        if ($death_date_str = $father->get_value('death date') and
+            $death_date = Gedcom::Date->parse($death_date_str)) {
+
+            print "Father dead $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $father->name, " ($father->{xref}) died $death_date_str\n\n"
+                        if $birth_date->earliest >
+                           $death_date->latest + $limit{father_dead};
+        }
+
+        my ($fbirth_date_str, $fbirth_date);
+        if ($fbirth_date_str = $father->get_value('birth date') and
+            $fbirth_date = Gedcom::Date->parse($fbirth_date_str)) {
+
+            print "Old father $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $father->name, " ($father->{xref}) born $fbirth_date_str\n\n"
+                        if $birth_date->earliest >
+                           $fbirth_date->latest + $limit{old_father};
+            print "Young father $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $father->name, " ($father->{xref}) born $fbirth_date_str\n\n",
+                        if $birth_date->latest <
+                           $fbirth_date->earliest + $limit{young_father};
+        }
+    }
+    for my $mother ($indi->mother) {
+        my ($death_date_str, $death_date);
+        if ($death_date_str = $mother->get_value('death date') and
+            $death_date = Gedcom::Date->parse($death_date_str)) {
+
+            print "Mother dead $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $mother->name, " ($mother->{xref}) died $death_date_str\n\n"
+                        if $death_date < $birth_date;
+        }
+        my ($fbirth_date_str, $fbirth_date);
+        if ($fbirth_date_str = $mother->get_value('birth date') and
+            $fbirth_date = Gedcom::Date->parse($fbirth_date_str)) {
+
+            print "Old mother $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $mother->name, " ($mother->{xref}) born $fbirth_date_str\n\n"
+                        if $birth_date->earliest >
+                           $fbirth_date->latest + $limit{old_mother};
+            print "Young mother $indi->{xref}\n",
+                  $indi->name, " ($indi->{xref}) born $birth_date_str\n",
+                  $mother->name, " ($mother->{xref}) born $fbirth_date_str\n\n"
+                        if $birth_date->latest <
+                           $fbirth_date->earliest + $limit{young_father};
+        }
+    }
+}

@@ -1,0 +1,7 @@
+TODO list for Perl module Gedcom::Date
+
+- Better treatment of partial dates ("2003", "JUL 2003");
+
+- Implement other calendars (Julian, Hebrew, French).
+
+
