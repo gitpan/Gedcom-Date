@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.04';
+our $VERSION = '0.05';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
@@ -178,7 +178,9 @@ sub _date_as_text {
     $dt->set(locale => $locale);
 
     if ($self->{known}{d}) {
-        return $dt->strftime($dt->locale->long_date_format);
+        my $format = $dt->locale->long_date_format;
+        $format =~ s/%y\b/%Y/g; # never, EVER, use 2-digit years
+        return $dt->strftime($format);
     } elsif ($self->{known}{m}) {
         return $dt->strftime('%B %Y');
     } else {

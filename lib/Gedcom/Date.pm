@@ -5,7 +5,7 @@ use DateTime::Locale;
 
 use vars qw($VERSION);
 
-$VERSION = '0.04';
+our $VERSION = '0.05';
 
 use Gedcom::Date::Simple;
 use Gedcom::Date::Period;

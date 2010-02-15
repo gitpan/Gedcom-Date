@@ -1,7 +1,5 @@
-MANIFEST
-LICENSE
-README
-Todo
+Build.PL
+Changelog.ini
 Changes
 lib/Gedcom/Date.pm
 lib/Gedcom/Date/Approximated.pm
@@ -10,6 +8,11 @@ lib/Gedcom/Date/Period.pm
 lib/Gedcom/Date/Phrase.pm
 lib/Gedcom/Date/Range.pm
 lib/Gedcom/Date/Simple.pm
+LICENSE
+Makefile.PL
+MANIFEST
+META.yml
+README
 scripts/check_ged
 t/001_load.t
 t/002_parse.t
@@ -18,5 +21,4 @@ t/100_compare.t
 t/101_output.t
 t/200_add.t
 t/201_clone.t
-Makefile.PL
-META.yml
+Todo

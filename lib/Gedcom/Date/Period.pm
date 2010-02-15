@@ -4,7 +4,7 @@ use strict;
 
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.04';
+our $VERSION = '0.05';
 @ISA = qw/Gedcom::Date/;
 
 use Gedcom::Date;
