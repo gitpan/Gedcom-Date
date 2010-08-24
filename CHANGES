@@ -1,5 +1,8 @@
 Revision history for Perl module Gedcom::Date
 
+0.06  17 Feb 2010
+	- Rename Changes to CHANGES.
+
 0.05  11 FEB 2010
 	- Change %y to %Y. RT#52372. Thanx to Rob Fugina.
 	- Add Build.PL, Changelog.ini, MANIFEST.SKIP and MYMETA.yml.

@@ -6,7 +6,7 @@ build_requires:
   Test::More: 0
 configure_requires:
   Module::Build: 0.36
-generated_by: 'Module::Build version 0.3603'
+generated_by: 'Module::Build version 0.3607'
 license: artistic
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -15,28 +15,28 @@ name: Gedcom-Date
 provides:
   Gedcom::Date:
     file: lib/Gedcom/Date.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Approximated:
     file: lib/Gedcom/Date/Approximated.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Interpreted:
     file: lib/Gedcom/Date/Interpreted.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Period:
     file: lib/Gedcom/Date/Period.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Phrase:
     file: lib/Gedcom/Date/Phrase.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Range:
     file: lib/Gedcom/Date/Range.pm
-    version: 0.05
+    version: 0.06
   Gedcom::Date::Simple:
     file: lib/Gedcom/Date/Simple.pm
-    version: 0.05
+    version: 0.06
 requires:
   DateTime: 0.15
   Params::Validate: 0
 resources:
-  license: http://opensource.org/licenses/artistic-license.php
-version: 0.05
+  license: http://www.perlfoundation.org/artistic_license_1_0
+version: 0.06
